@@ -11,6 +11,8 @@ const {getAdvDeets} = require('./functions/advDeets');
 const {getAddress} = require('./functions/geocode');
 const {getDeets} = require('./functions/buildingData');
 
+const user_id = 1;
+
 var app = express();
 app.use(bodyParser.json());
 
@@ -33,68 +35,80 @@ app.get('/building/:lat/:lng/:deg', async (req, res) => {
         .then((deets) => {
             var xml = deets.body;
             var jsonObj = parser.parse(xml);
+            console.log("\n");
+            console.log(jsonObj);
+            console.log("\n");
             complete = {};
-            try {
-                complete['address'] = jsonObj['SearchResults:searchresults'].request.address;
+            if(jsonObj['SearchResults:searchresults'].message.code != 508) {
+                try {
+                    complete['address'] = jsonObj['SearchResults:searchresults'].request.address;
+                }
+                catch(e) {}
+                try {
+                    zpidArr = jsonObj['SearchResults:searchresults'].response.results.result;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                zpid = 0;
+                if(zpidArr instanceof Array) {
+                    console.log('array');
+                    zpid = zpidArr[0].zpid;
+                    complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result[0].rentzestimate.amount;
+                    complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result[0].zestimate.amount;
+                }
+                else {
+                    zpid = zpidArr.zpid;
+                    complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result.rentzestimate.amount;
+                    complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result.zestimate.amount;
+                }
+                console.log(zpid);
+                getAdvDeets(zpid)
+                .then((advdeets) => {
+                    var advxml = advdeets.body;
+                    var advobj = parser.parse(advxml);
+                    // complete['pictures']
+                    try {
+                    complete['bedrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    try {
+                    complete['bathrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    try {
+                    complete['area'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.finishedSqFt;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    try {
+                    complete['headline'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.homeDescription;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    try {
+                    complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    try {
+                    complete['numFloors'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.numFloors;
+                    }
+                    catch(e) {
+                        console.log(e);
+                    }
+                    res.send(complete);
+                })
             }
-            catch(e) {}
-            zpidArr = jsonObj['SearchResults:searchresults'].response.results.result;
-            zpid = 0;
-            if(zpidArr instanceof Array) {
-                console.log('array');
-                zpid = zpidArr[0].zpid;
-                complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result[0].rentzestimate.amount;
-                complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result[0].zestimate.amount;
-            }
-            else {
-                zpid = zpidArr.zpid;
-                complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result.rentzestimate.amount;
-                complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result.zestimate.amount;
-            }
-            console.log(zpid);
-            getAdvDeets(zpid)
-            .then((advdeets) => {
-                var advxml = advdeets.body;
-                var advobj = parser.parse(advxml);
-                // complete['pictures']
-                try {
-                complete['bedrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
-                }
-                catch(e) {
-                    console.log(e);
-                }
-                try {
-                complete['bathrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
-                }
-                catch(e) {
-                    console.log(e);
-                }
-                try {
-                complete['area'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.finishedSqFt;
-                }
-                catch(e) {
-                    console.log(e);
-                }
-                try {
-                complete['headline'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.homeDescription;
-                }
-                catch(e) {
-                    console.log(e);
-                }
-                try {
-                complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
-                }
-                catch(e) {
-                    console.log(e);
-                }
-                try {
-                complete['numFloors'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.numFloors;
-                }
-                catch(e) {
-                    console.log(e);
-                }
+            else
                 res.send(complete);
-            })
         });
     })
     .catch((e) => {
