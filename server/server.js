@@ -2,14 +2,14 @@ var express = require('express');
 var bodyParser = require('body-parser');
 const path = require('path');
 const mysql = require('mysql');
-const {neighbors} = require('./getNeighbors');
-const parseXml = require('@rgrove/parse-xml');
-var parseString = require('xml2js').parseString;
-const mongoost = require('')
+const {neighbors} = require('./functions/getNeighbors');
+var parser = require('fast-xml-parser');
+const {mongoose} = require('./db/mongoose');
+const {connect} = require('./db/mongoose');
+const {getAdvDeets} = require('./functions/advDeets');
 
-
-const {getAddress} = require('./geocode');
-const {getDeets} = require('./buildingData');
+const {getAddress} = require('./functions/geocode');
+const {getDeets} = require('./functions/buildingData');
 
 var app = express();
 app.use(bodyParser.json());
@@ -18,9 +18,10 @@ var port = process.env.PORT || 3000;
 
 app.listen(port, async () => {
     console.log('started on port ' + port);
+    await connect();
 });
 
-app.post('/building/:lat/:lng/:deg', async (req, res) => {
+app.get('/building/:lat/:lng/:deg', async (req, res) => {
     neighbors(req.params.lat, req.params.lng, req.params.deg)
     .then((result) => {
         var address = result;
@@ -31,16 +32,24 @@ app.post('/building/:lat/:lng/:deg', async (req, res) => {
         getDeets(street, city)
         .then((deets) => {
             var xml = deets.body;
-            parseString(xml, function (err, result) {
-                console.log(result);
-                var complete = {};
-                complete['street_address'] = result['SearchResults:searchresults'].request[0].address[0];
-                complete['useCode'] = result['SearchResults:searchresults'].response[0].results[0].result[0].useCode[0];
-                complete['rentzestimate'] = result['SearchResults:searchresults'].response[0].results[0].result[0].rentzestimate[0].amount[0]['_'];
-                complete['low'] = result['SearchResults:searchresults'].response[0].results[0].result[0].rentzestimate[0].valuationRange[0].low[0]['_'];
-                complete['low'] = result['SearchResults:searchresults'].response[0].results[0].result[0].rentzestimate[0].valuationRange[0].high[0]['_'];
-                res.send(complete);
-            });
+            var jsonObj = parser.parse(xml);
+            complete = {};
+            complete['address'] = jsonObj['SearchResults:searchresults'].request.address;
+            zpidArr = jsonObj['SearchResults:searchresults'].response.results.result;
+            zpid = 0;
+            if(zpidArr instanceof Array) {
+                console.log('array');
+                zpid = zpidArr[0].zpid;
+            }
+            else
+                zpid = zpidArr.zpid;
+            console.log(zpid);
+            getAdvDeets(zpid)
+            .then((advdeets) => {
+                var advxml = advdeets.body;
+                var advobj = parser.parse(advxml);
+                res.send(advobj);
+            })
         });
     })
     .catch((e) => {
