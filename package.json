@@ -1,0 +1,22 @@
+{
+  "name": "rice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/maps": "^0.5.5",
+    "@rgrove/parse-xml": "^1.1.1",
+    "express": "^4.16.3",
+    "install": "^0.12.1",
+    "mongoose": "^5.2.14",
+    "mysql": "^2.16.0",
+    "request": "^2.88.0",
+    "requests": "^0.2.2",
+    "xml2js": "^0.4.19"
+  }
+}
