@@ -28,11 +28,14 @@ var Property = mongoose.model('Property', {
     headline: {
 
     },
-    complex_name: {
-
-    },
     bedrooms: {
 
+    }, 
+    bathrooms: {
+
+    }, 
+    area {
+        
     }
 }); 
 

@@ -34,21 +34,66 @@ app.get('/building/:lat/:lng/:deg', async (req, res) => {
             var xml = deets.body;
             var jsonObj = parser.parse(xml);
             complete = {};
-            complete['address'] = jsonObj['SearchResults:searchresults'].request.address;
+            try {
+                complete['address'] = jsonObj['SearchResults:searchresults'].request.address;
+            }
+            catch(e) {}
             zpidArr = jsonObj['SearchResults:searchresults'].response.results.result;
             zpid = 0;
             if(zpidArr instanceof Array) {
                 console.log('array');
                 zpid = zpidArr[0].zpid;
+                complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result[0].rentzestimate.amount;
+                complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result[0].zestimate.amount;
             }
-            else
+            else {
                 zpid = zpidArr.zpid;
+                complete['rent'] = jsonObj['SearchResults:searchresults'].response.results.result.rentzestimate.amount;
+                complete['valuation'] = jsonObj['SearchResults:searchresults'].response.results.result.zestimate.amount;
+            }
             console.log(zpid);
             getAdvDeets(zpid)
             .then((advdeets) => {
                 var advxml = advdeets.body;
                 var advobj = parser.parse(advxml);
-                res.send(advobj);
+                // complete['pictures']
+                try {
+                complete['bedrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                try {
+                complete['bathrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                try {
+                complete['area'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.finishedSqFt;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                try {
+                complete['headline'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.homeDescription;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                try {
+                complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                try {
+                complete['numFloors'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.numFloors;
+                }
+                catch(e) {
+                    console.log(e);
+                }
+                res.send(complete);
             })
         });
     })
