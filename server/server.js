@@ -96,7 +96,7 @@ app.get('/building/:lat/:lng/:deg', async (req, res) => {
                     complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
                     }
                     catch(e) {
-                        complete['pictures'] = "";
+                        complete['pictures'] = [];
                     }
                     try {
                     complete['numFloors'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.numFloors;
