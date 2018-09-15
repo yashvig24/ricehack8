@@ -48,7 +48,7 @@ app.get('/building/:lat/:lng/:deg', async (req, res) => {
                     zpidArr = jsonObj['SearchResults:searchresults'].response.results.result;
                 }
                 catch(e) {
-                    console.log(e);
+                    return res.send(complete);
                 }
                 zpid = 0;
                 if(zpidArr instanceof Array) {
@@ -72,37 +72,37 @@ app.get('/building/:lat/:lng/:deg', async (req, res) => {
                     complete['bedrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['bedrooms'] = "";
                     }
                     try {
                     complete['bathrooms'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.bedrooms;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['bathrooms'] = "";
                     }
                     try {
                     complete['area'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.finishedSqFt;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['area'] = "";
                     }
                     try {
                     complete['headline'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.homeDescription;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['headline'] = "";
                     }
                     try {
                     complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['pictures'] = "";
                     }
                     try {
                     complete['numFloors'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.editedFacts.numFloors;
                     }
                     catch(e) {
-                        console.log(e);
+                        complete['numFloors'] = "";
                     }
                     res.send(complete);
                 })
