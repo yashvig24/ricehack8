@@ -23,8 +23,7 @@ app.listen(port, async () => {
     await connect();
 });
 
-app.get('/building/:lat/:lng/:deg/:user_id', async (req, res) => {
-    var user_id = req.params.user_id;
+app.get('/building/:lat/:lng/:deg', async (req, res) => {
     neighbors(req.params.lat, req.params.lng, req.params.deg)
     .then((result) => {
         var address = result;
@@ -96,7 +95,7 @@ app.get('/building/:lat/:lng/:deg/:user_id', async (req, res) => {
                         complete['headline'] = "";
                     }
                     try {
-                    complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url;
+                    complete['pictures'] = advobj["UpdatedPropertyDetails:updatedPropertyDetails"].response.images.image.url[0];
                     }
                     catch(e) {
                         complete['pictures'] = [];
@@ -107,21 +106,6 @@ app.get('/building/:lat/:lng/:deg/:user_id', async (req, res) => {
                     catch(e) {
                         complete['numFloors'] = "";
                     }
-                    var prop = new Property(complete);
-                    prop.save()
-                    .catch((e) => {
-                        console.log(e);
-                    });
-                    var query = {_id: user_id},
-                    update = { $push: { look_up: zpid } },
-                    options = { upsert: true, new: true, setDefaultsOnInsert: true };
-                    User.findOneAndUpdate(query, update, options, function(error, result) {
-                        if (error) return;
-
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                    })
                     res.send(complete);
                 })
             }
@@ -136,5 +120,5 @@ app.get('/building/:lat/:lng/:deg/:user_id', async (req, res) => {
 
 
 app.get('/suggest/:user_id', (req, res) => {
-    
+
 })

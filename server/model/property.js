@@ -17,7 +17,7 @@ var Property = mongoose.model('Property', {
         type: Number
     },
     pictures: {
-        type: [String]
+        type: String
     },
     headline: {
         type: String
