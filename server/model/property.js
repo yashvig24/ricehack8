@@ -4,38 +4,32 @@ var Property = mongoose.model('Property', {
         type: Number,
         required: true
     },
-    lat: {
-
-    },
-    lng: {
-
-    },
     rent: {
-
+        type: Number
     },
     address: {
-
+        type: String
     },
     high: {
-
+        type: Number
     },
     low: {
-
+        type: Number
     },
     pictures: {
-
+        type: [String]
     },
     headline: {
-
+        type: String
     },
     bedrooms: {
-
+        Type: Number
     }, 
     bathrooms: {
-
+        Type: Number
     }, 
-    area {
-        
+    area: {
+        Type: Number
     }
 }); 
 

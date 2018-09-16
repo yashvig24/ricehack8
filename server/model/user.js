@@ -1,15 +1,12 @@
 const mongoose = require('mongoose');
-var Searcher = mongoose.model('Searcher', {
+var User = mongoose.model('User', {
     _id: {
         type: Number,
         required: true
-    },
-    age: {
-        type: Number
     },
     look_up: {
         type: [Number]
     }
 }); 
 
-module.exports.Searcher = Searcher;
+module.exports.User = User;
